@@ -123,6 +123,13 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
             return;
     }
 
+    // HACK: Change ContinuationAlignWithIndent to indent by indent size.
+    using ContinuationAlignBehavior = TextEditor::TabSettings::ContinuationAlignBehavior;
+    if (tabSettings.m_continuationAlignBehavior
+        == ContinuationAlignBehavior::ContinuationAlignWithIndent) {
+        padding = qMin(padding, tabSettings.m_indentSize);
+    }
+
     tabSettings.indentLine(block, indent + padding, padding);
 }
 
@@ -145,6 +152,14 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
             int indent;
             int padding;
             codeFormatter.indentFor(block, &indent, &padding);
+
+            // HACK: Change ContinuationAlignWithIndent to indent by indent size.
+            using ContinuationAlignBehavior = TextEditor::TabSettings::ContinuationAlignBehavior;
+            if (tabSettings.m_continuationAlignBehavior
+                == ContinuationAlignBehavior::ContinuationAlignWithIndent) {
+                padding = qMin(padding, tabSettings.m_indentSize);
+            }
+
             tabSettings.indentLine(block, indent + padding, padding);
             codeFormatter.updateLineStateChange(block);
             block = block.next();
