@@ -73,6 +73,13 @@ void GlslIndenter::indentBlock(const QTextBlock &block,
             return;
     }
 
+    // HACK: Change ContinuationAlignWithIndent to indent by indent size.
+    using ContinuationAlignBehavior = TextEditor::TabSettings::ContinuationAlignBehavior;
+    if (tabSettings.m_continuationAlignBehavior
+        == ContinuationAlignBehavior::ContinuationAlignWithIndent) {
+        padding = qMin(padding, tabSettings.m_indentSize);
+    }
+
     tabSettings.indentLine(block, indent + padding, padding);
 }
 
@@ -97,6 +104,14 @@ void GlslIndenter::indent(const QTextCursor &cursor,
             int indent;
             int padding;
             codeFormatter.indentFor(block, &indent, &padding);
+
+            // HACK: Change ContinuationAlignWithIndent to indent by indent size.
+            using ContinuationAlignBehavior = TextEditor::TabSettings::ContinuationAlignBehavior;
+            if (tabSettings.m_continuationAlignBehavior
+                == ContinuationAlignBehavior::ContinuationAlignWithIndent) {
+                padding = qMin(padding, tabSettings.m_indentSize);
+            }
+
             tabSettings.indentLine(block, indent + padding, padding);
             codeFormatter.updateLineStateChange(block);
             block = block.next();
